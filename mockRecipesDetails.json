@@ -1,0 +1,10 @@
+[
+  {
+    "id": 100001,
+    "title": "Egg Fried Rice",
+    "image": "https://via.placeholder.com/600",
+    "extendedIngredients":[{"id":1,"original":"2 eggs"},{"id":2,"original":"1 cup cooked rice"}],
+    "instructions":"Beat eggs. Heat pan. Add rice. Mix. Serve.",
+    "nutrition":{"nutrients":[{"name":"Calories","amount":350}]}
+  }
+]
