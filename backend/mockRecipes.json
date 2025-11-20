@@ -1,0 +1,20 @@
+[
+  {
+    "id": 100001,
+    "title": "Egg Fried Rice",
+    "image": "https://via.placeholder.com/300",
+    "usedIngredientCount": 2,
+    "missedIngredientCount": 1,
+    "usedIngredients": [{"name":"egg"},{"name":"rice"}],
+    "missedIngredients": [{"name":"soy sauce"}]
+  },
+  {
+    "id": 100002,
+    "title": "Tomato Omelette",
+    "image": "https://via.placeholder.com/300",
+    "usedIngredientCount": 2,
+    "missedIngredientCount": 0,
+    "usedIngredients": [{"name":"tomato"},{"name":"egg"}],
+    "missedIngredients": []
+  }
+]

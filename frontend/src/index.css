@@ -1,0 +1,40 @@
+/* src/index.css - global theme & layout */
+:root{
+  --container-max: 1100px;
+  --gap: 16px;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(11,12,15,0.06);
+  --accent: #ff6b6b;
+  --bg: #fff;
+  --text: #111;
+  --muted: #666;
+  --card: #f8f8f8;
+}
+
+[data-theme="dark"]{
+  --bg: #0f1724;
+  --text: #e6eef8;
+  --muted: #97a6c2;
+  --accent: #ff9977;
+  --card: #0b1220;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  transition: background .25s ease, color .25s ease;
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.container { max-width: var(--container-max); margin:0 auto; padding:28px 20px; }
+.card { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 12px; }
+
+h1,h2,h3 { margin: 0 0 8px 0; }
+a { color: var(--accent); text-decoration: none; }
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+.mini-card { flex:1; padding:14px; border-radius:12px; background:var(--card); box-shadow:var(--shadow); text-align:center; font-weight:600; }
+/* fav button */
+.fav-btn-local { transition: transform .12s ease; }
+.fav-btn-local:hover { transform: scale(1.08); }

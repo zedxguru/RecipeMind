@@ -1,0 +1,27 @@
+/* src/components/IngredientSearch.css */
+.is-wrapper { position: relative; display:flex; align-items:center; gap:8px; width: 100%; }
+.is-form { display:flex; align-items:center; gap:8px; width:100%; }
+.chips {
+  display:flex; align-items:center; flex:1 1 0; gap:8px;
+  padding:6px 8px; border-radius:999px; background:var(--card); border:1px solid rgba(0,0,0,0.06);
+  flex-wrap:wrap;
+  min-height:40px; min-width: 0;
+}
+.is-input { flex:1 1 auto; border:0; outline:none; padding:6px; min-width:80px; background:transparent; color:var(--text); }
+.chip { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,0.06); padding:6px 8px; border-radius:999px; font-weight:600; white-space: nowrap;}
+.chip-x { border:0;background:transparent; cursor:pointer; font-size:12px; color:var(--muted); }
+
+.is-find-btn { flex: 0 0 auto; background:var(--accent); color:#fff; border:0; padding:8px 14px; border-radius:999px; cursor:pointer; white-space: nowrap;}
+
+.is-list {
+  position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:90;
+  background:var(--card); border-radius:8px; box-shadow:0 10px 26px rgba(0,0,0,0.2); list-style:none; margin:0; padding:8px 0;
+  max-height:260px; overflow:auto;
+}
+.is-list li { padding:8px 12px; cursor:pointer; color:var(--text); }
+.is-list li.active, .is-list li:hover { background:rgba(0,0,0,0.06); }
+@media (max-width: 420px) {
+  .is-form { flex-direction: column; align-items: stretch; gap: 8px; }
+  .is-find-btn { width: 100%; margin-left: 0; }
+  .chips { order: 0; }
+}
