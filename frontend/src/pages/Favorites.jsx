@@ -1,59 +1,89 @@
-// src/pages/Favorites.jsx
-import React, { useEffect, useState } from 'react';
-import { getLocalFavs } from '../utils/localFavs';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import FavButtonLocal from '../components/FavButtonLocal';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { getToken } from "../utils/auth";
+import { Link, useNavigate } from "react-router-dom";
 
-const API = 'http://localhost:5000';
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-export default function Favorites(){
-  const [ids, setIds] = useState([]);
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(false);
+export default function Favorites() {
+  const token = getToken();
+  const navigate = useNavigate();
 
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 🔐 protect page
   useEffect(() => {
-    const arr = getLocalFavs();
-    setIds(arr);
-  }, []);
-
-  useEffect(() => {
-    async function load(){
-      if(!ids || ids.length === 0) { setRecipes([]); return; }
-      setLoading(true);
-      try {
-        // fetch details for each id (parallel)
-        const requests = ids.map(id => axios.get(`${API}/api/recipe/${id}`).then(r => r.data).catch(()=>null));
-        const results = await Promise.all(requests);
-        setRecipes(results.filter(Boolean));
-      } catch(err){
-        console.error('fav load err', err);
-      } finally { setLoading(false); }
+    if (!token) {
+      navigate("/login");
     }
-    load();
-  }, [ids]);
+  }, [token, navigate]);
+
+  // 📥 load favorites from backend
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchFavorites = async () => {
+      try {
+        const res = await axios.get(`${API}/api/favorites`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setFavorites(res.data || []);
+      } catch (err) {
+        console.error("Failed to load favorites");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavorites();
+  }, [token]);
+
+  if (loading) {
+    return <p style={{ textAlign: "center" }}>Loading favorites…</p>;
+  }
 
   return (
-    <div className="container" style={{ padding:'28px 20px' }}>
-      <h2>Your Favorites</h2>
-      {loading && <p>Loading favorites...</p>}
-      {!loading && recipes.length === 0 && <p>No favorites yet. Add some recipes to favorites ❤️</p>}
+    <div style={{ maxWidth: 1100, margin: "0 auto", padding: 20 }}>
+      <h2>Your Favorites ❤️</h2>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16, marginTop:16 }}>
-        {recipes.map(r => (
-          <div key={r.id || r._id} className="card">
-            <img src={r.image || 'https://via.placeholder.com/400x250'} alt={r.title} style={{ width:'100%', height:140, objectFit:'cover' }}
-                 onError={e=>{ e.target.onerror=null; e.target.src='https://via.placeholder.com/400x250?text=Recipe'; }} />
-            <div style={{ padding:10 }}>
-              <h4 style={{ margin:'6px 0' }}>{r.title}</h4>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <Link to={`/recipe/${r.id || r._id}`}>View</Link>
-                <FavButtonLocal recipeId={r.id || r._id} />
+      {favorites.length === 0 ? (
+        <p style={{ color: "#666", marginTop: 20 }}>
+          No favorites yet. ❤️ some recipes!
+        </p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gap: 16,
+            marginTop: 20,
+          }}
+        >
+          {favorites.map((r) => (
+            <div
+              key={r.uri}
+              style={{
+                borderRadius: 12,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src={r.image || "https://via.placeholder.com/400x250"}
+                alt={r.title}
+                style={{ width: "100%", height: 160, objectFit: "cover" }}
+              />
+              <div style={{ padding: 12 }}>
+                <h4 style={{ marginBottom: 8 }}>{r.title}</h4>
+                <Link to={`/recipe/${encodeURIComponent(r.uri)}`}>View recipe</Link>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

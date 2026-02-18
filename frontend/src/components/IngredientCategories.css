@@ -1,0 +1,99 @@
+.ingredient-categories {
+  margin-top: 16px;
+}
+
+.category-block {
+  margin-bottom: 12px;
+}
+
+.category-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.category-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.category-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.category-row::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
+}
+
+.ingredient-chip {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.ingredient-chip:hover {
+  background:  #fff0f4;
+  color: #0c0c0c;
+  border-color: #ff5a8a;
+}
+.ingredient-chip.selected {
+  background: #ff5c8a;
+  color: #fff;
+  border-color: #ff5c8a;
+}
+.ingredient-chip.selected:hover {
+  opacity: 0.85;
+}
+/* default icon color */
+.ingredient-chip svg {
+  color: #666;
+}
+/* selected icon color */
+.ingredient-chip.selected svg {
+  color: #fff;
+}
+.chip-icon {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  margin-right: 6px;
+  color: #ff4d6d; /* brand pink */
+  width: 18px;
+  height: 18px;
+  fill: #ff4d6d;
+}
+.selected .chip-icon,
+.selected-icon {
+  transform: scale(1.1);
+  fill: #ffffff;
+}
+.ingredient-chip.selected .chip-icon {
+  color: white;
+}
+.chip-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+.chip-remove{
+  margin-left: 4px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.ingredient-chip.selected:hover .chip-remove{
+  opacity: 1;
+}

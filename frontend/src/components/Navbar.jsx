@@ -1,86 +1,232 @@
-// src/components/Navbar.jsx (replace entire file with this)
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
-import axios from 'axios';
-import './Navbar.css';
+import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { getUser, logout } from "../utils/auth";
+import axios from "axios";
+import "./Navbar.css";
+import { toggleTheme,getTheme } from "../utils/theme";
 
-import IngredientSearch from './IngredientSearch';
-import './IngredientSearch.css';
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-export default function Navbar(){
+export default function Navbar() {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false); // mobile menu
-  const [theme, setTheme] = useState('light');
+  const location = useLocation();
+  const searchRef = useRef(null);
+
+  // 🔐 AUTH STATE
   const [user, setUser] = useState(null);
 
+  // 🔍 SEARCH STATE
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [recipeSuggestions, setRecipeSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [theme, setTheme] = useState(getTheme());
+  const handleThemeToggle = () => {
+    const newTheme = toggleTheme();
+    setTheme(newTheme);
+  }
+
+  // sync user on route change (login / logout ke baad)
   useEffect(() => {
-    const u = localStorage.getItem('rm_user');
-    if(u) setUser(JSON.parse(u));
-    const saved = localStorage.getItem('ingredine_theme') || 'light';
-    setTheme(saved);
-    document.documentElement.setAttribute('data-theme', saved);
-  }, []);
+    setUser(getUser());
+  }, [location.pathname]);
 
-  const toggleTheme = () => {
-    const next = theme === 'light' ? 'dark' : 'light';
-    setTheme(next);
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('ingredine_theme', next);
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+    navigate("/login");
   };
 
-  const logout = () => {
-    localStorage.removeItem('rm_token');
-    localStorage.removeItem('rm_user');
-    delete axios.defaults.headers.common['Authorization'];
-    navigate('/');
-    window.location.reload();
+  const POPULAR_RECIPES = [
+    { id: "paneer-butter", title: "Paneer Butter Masala" },
+    { id: "paneer-bhurji", title: "Paneer Bhurji" },
+    { id: "chicken-curry", title: "Chicken Curry" },
+    { id: "veg-pulao", title: "Veg Pulao" },
+  ];
+
+  // 🔹 Ingredient suggestions
+  const fetchSuggestions = async (text) => {
+    if (!text.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `${API}/api/suggest-ingredients?q=${encodeURIComponent(text)}`
+      );
+      setSuggestions(res.data.suggestions || []);
+    } catch {
+      setSuggestions([]);
+    }
   };
 
-  const initials = user ? (user.name ? user.name.split(' ').map(n=>n[0]).slice(0,2).join('') : (user.email||'U')[0]) : '';
+  // 🔹 Trigger search
+  const triggerSearch = (value) => {
+    if (!value.trim()) return;
+
+    setShowSuggestions(false);
+    setActiveIndex(-1);
+    setQuery("");
+    navigate(`/?q=${encodeURIComponent(value.trim())}`);
+  };
+
+  // 🔹 Keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!showSuggestions) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((p) =>
+        p < suggestions.length - 1 ? p + 1 : 0
+      );
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((p) =>
+        p > 0 ? p - 1 : suggestions.length - 1
+      );
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (activeIndex >= 0 && suggestions[activeIndex]) {
+        triggerSearch(suggestions[activeIndex]);
+      } else {
+        triggerSearch(query);
+      }
+    }
+
+    if (e.key === "Escape") {
+      setShowSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (searchRef.current && !searchRef.current.contains(e.target)) {
+      setShowSuggestions(false);
+      setActiveIndex(-1);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   return (
-    <header className="rm-nav">
-      <div className="rm-container">
-        <div className="rm-left">
-          <button className="hambtn" onClick={() => setOpen(!open)}>
-            {open ? <FiX size={20}/> : <FiMenu size={20}/>}
-          </button>
+    <header className="navbar">
+      <div className="nav-inner">
 
-          <Link to="/" className="brand">
-            <span className="brand-dot">Ingre</span><span className="brand-rest">Dine</span>
+        {/* LEFT */}
+        <div className="nav-left">
+          <Link to="/" className="nav-logo">
+             <span>Recipe</span><span>Mind</span>
           </Link>
         </div>
 
-        <div className={`rm-search ${open ? 'show-mobile' : ''}`}>
-          <IngredientSearch onSearchNavigate={(param) => {
-            setOpen(false);
-            navigate(`/?q=${encodeURIComponent(param)}`);
-          }}/>
-        </div>
+        {/* CENTER SEARCH */}
+        <div className="nav-center" ref={searchRef}>
+          <input
+            type="text"
+            placeholder="Find a recipe or ingredient"
+            className="nav-search"
+            value={query}
+            onChange={(e) => {
+              const val = e.target.value;
+              setQuery(val);
 
-        <nav className={`rm-right ${open ? 'open' : ''}`}>
-          <Link to="/favorites" className="nav-link">Favorites</Link>
-          <Link to="/" className="nav-link">Explore</Link>
-          <button className="theme-btn" onClick={toggleTheme} title="Toggle theme">
-            {theme === 'light' ? <FiMoon/> : <FiSun/>}
+              fetchSuggestions(val);
+
+              const matched = POPULAR_RECIPES.filter((r) =>
+                r.title.toLowerCase().includes(val.toLowerCase())
+              );
+              setRecipeSuggestions(matched);
+
+              setShowSuggestions(true);
+              setActiveIndex(-1);
+            }}
+            onKeyDown={handleKeyDown}
+          />
+
+          <button
+            className="nav-search-btn"
+            onClick={() => triggerSearch(query)}
+          >
+            🔍
           </button>
 
-          { user ? (
-            <div className="user-menu">
-              <div className="avatar" title={user.name || user.email}>{initials}</div>
-              <div className="user-dropdown">
-                <div className="ud-name">{user.name || user.email}</div>
-                <button className="ud-btn" onClick={() => navigate('/profile')}>Profile</button>
-                <button className="ud-btn" onClick={logout}>Logout</button>
-              </div>
-            </div>
-          ) : (
-            <div className="auth-links">
-              <Link to="/auth" className="nav-link btn-primary">Login / Signup</Link>
+          {showSuggestions && (
+            <div className="nav-suggestions">
+              {suggestions.length > 0 && (
+                <>
+                  <div className="suggestion-section">Ingredients</div>
+                  {suggestions.map((item, i) => (
+                    <div
+                      key={item}
+                      className={`nav-suggestion-item ${
+                        i === activeIndex ? "active" : ""
+                      }`}
+                      onClick={() => triggerSearch(item)}
+                    >
+                      🥬 {item}
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {recipeSuggestions.length > 0 && (
+                <>
+                  <div className="suggestion-section">Recipes</div>
+                  {recipeSuggestions.map((r) => (
+                    <div
+                      key={r.id}
+                      className="nav-suggestion-item recipe"
+                      onClick={() => triggerSearch(r.title)}
+                    >
+                      🍳 {r.title}
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           )}
-        </nav>
+        </div>
+
+        {/* RIGHT */}
+        <div className="nav-right">
+          {user ? (
+            <>
+              <span className="nav-user">
+                Hi {user.name || user.email} 👋
+              </span>
+
+              <Link to="/favorites" className="nav-link">
+                ❤️ Favorites
+              </Link>
+
+              <button className="logout" onClick={handleLogout}>
+                Logout
+              </button>
+              <button className="theme-toggle" onClick={handleThemeToggle}>
+                {theme === "dark" ? "☀️" : "🌙"}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-link login">
+                Log In
+              </Link>
+              <Link to="/signup" className="nav-link signup">
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

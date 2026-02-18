@@ -1,112 +1,169 @@
-// Home.jsx — full final
-// Path: recipemind/frontend/src/pages/Home.jsx
-import React, { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import axios from 'axios';
-import FavButtonLocal from '../components/FavButtonLocal';
-
-const API = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+import React, { useEffect, useState } from "react";
+import IngredientCategories from "../components/IngredientCategories";
+import axios from "axios";
+import { Link, useSearchParams } from "react-router-dom";
+import FavButtonAuth from "../components/FavButtonAuth";
+import "../components/RecipeCard.css";
+import Hero from "../components/Hero";
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 export default function Home() {
-  const query = useQuery();
-  const qParam = query.get('q') || ''; // q example: tomato,egg
-  const [ingredientsInput, setIngredientsInput] = useState(qParam);
+  const [ingredients, setIngredients] = useState("");
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [animateResults,setAnimateResults] = useState(false);
 
-  // when URL param changes, fire search
-  useEffect(() => {
-    if (!qParam) {
-      setResults([]);
-      return;
-    }
-    // parse qParam into array
-    const arr = qParam.split(',').map(x => x.trim()).filter(Boolean);
-    doSearch(arr);
-    // eslint-disable-next-line
-  }, [qParam]);
+  const [searchParams] = useSearchParams();
+  const navQuery = searchParams.get("q");
 
-  const doSearch = async (arr) => {
+  // 🔹 Navbar search handler
+  const handleSearchFromNav = async (queryString) => {
+    const list = queryString
+      .split(",")
+      .map((i) => i.trim())
+      .filter(Boolean);
+
+    if (!list.length) return;
+
     setLoading(true);
-    setError('');
+    setError("");
+
     try {
-      const res = await axios.post(`${API}/api/search-by-ingredients`, { ingredients: arr }, { timeout: 15000 });
+      const res = await axios.post(`${API}/api/search-by-ingredients`, {
+        ingredients: list,
+      });
       setResults(res.data || []);
-    } catch (err) {
-      console.error('Search failed:', err.response?.data || err.message);
-      setError('Search failed. Check backend or try different ingredients.');
-      setResults([]);
+    } catch (e) {
+      setError("Search failed. Check backend.");
     } finally {
       setLoading(false);
     }
   };
 
-  // optional local submit when user presses Find (if you want to support manual search here)
-  const onSubmit = (e) => {
-    e && e.preventDefault();
-    const arr = ingredientsInput.split(',').map(x => x.trim()).filter(Boolean);
-    // push to url to let Navbar/IngredientSearch handle everywhere; but we can just search here
-    doSearch(arr);
+  // 🔹 Trigger when navbar search changes
+  useEffect(() => {
+    if (navQuery) {
+      setIngredients(navQuery);
+      const arr = navQuery
+        .split(",")
+        .map((i) => i.trim())
+        .filter(Boolean);
+      setSelectedIngredients(arr);
+      handleSearchFromNav(navQuery);
+    }
+  }, [navQuery]);
+
+  // 🔹 Normal search (chips + input)
+  const handleSearch = async () => {
+    const list = ingredients
+      .split(",")
+      .map((i) => i.trim())
+      .filter(Boolean);
+
+    if (!list.length) {
+      setError("Please add at least one ingredient");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await axios.post(`${API}/api/search-by-ingredients`, {
+        ingredients: list,
+      });
+      setResults(res.data || []);
+    } catch (e) {
+      setError("Search failed. Check backend.");
+    } finally {
+      setLoading(false);
+    }
+    setAnimateResults(false);
+    setTimeout(()=>{
+      setAnimateResults(true);
+    },100);
   };
 
   return (
-    <div className="container" style={{ padding: '24px 20px' }}>
-      <div style={{ marginBottom: 18 }}>
-        <h1 style={{ margin: 0 }}>IngreDine — Find recipes from your ingredients</h1>
-        <p style={{ color: 'var(--muted)', marginTop: 8 }}>
-          Use the search box in the top bar. Or type comma separated ingredients below and press Find.
+    <div className="main-content" style={{ paddingTop: 20 }}>
+     <Hero />
+      {/* TITLE 
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <h1>RecipeMind — Find recipes from ingredients</h1>
+        <p style={{ color: "#777" }}>
+          Use ingredient chips or type ingredients, then press Search
         </p>
+      </div> */}
+      <div className="container-home-body"></div>
+      {/* INGREDIENT CATEGORIES */}
+      <IngredientCategories
+        selected={selectedIngredients}
+        onSelect={(item) => {
+          let updated;
+          if (selectedIngredients.includes(item)) {
+            updated = selectedIngredients.filter((i) => i !== item);
+          } else {
+            updated = [...selectedIngredients, item];
+          }
+          setSelectedIngredients(updated);
+          setIngredients(updated.join(", "));
+        }}
+      />
 
-        {/* small input fallback for quick tests */}
-        <form onSubmit={onSubmit} style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <input
-            value={ingredientsInput}
-            onChange={e => setIngredientsInput(e.target.value)}
-            placeholder="e.g. tomato, egg, rice"
-            style={{ flex: 1, padding: 10, borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)' }}
-          />
-          <button type="submit" style={{ padding: '8px 14px', borderRadius: 6, background: 'var(--accent)', color: '#fff', border: 0 }}>
-            Find
-          </button>
-        </form>
+      {/* SEARCH INPUT */}
+      <div className="home-search-wrapper">
+        <input
+          value={ingredients}
+          onChange={(e) => setIngredients(e.target.value)}
+          placeholder="e.g. tomato, paneer, onion"
+          className="home-search-input"
+        />
+        <button
+          onClick={handleSearch}
+          className="home-search-btn"
+        >
+          Search
+        </button>
       </div>
 
-      {loading && <p>Loading results...</p>}
-      {error && <p style={{ color: 'crimson' }}>{error}</p>}
-
-      {!loading && results.length === 0 && (
-        <div style={{ marginTop: 40, textAlign: 'center', color: 'var(--muted)' }}>
-          <p>No results yet. Try: tomato, egg or rice, potato.</p>
-        </div>
+      {/* STATUS */}
+      {loading && <p style={{ textAlign: "center" }}>Loading…</p>}
+      {error && (
+        <p style={{ color: "crimson", textAlign: "center" }}>{error}</p>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16, marginTop: 18 }}>
-        {results.map(item => (
-          <div key={item.id || item._id} className="card" style={{ overflow: 'hidden', borderRadius: 8 }}>
-            <img
-              src={item.image || 'https://via.placeholder.com/400x250?text=Recipe'}
-              alt={item.title}
-              style={{ width: '100%', height: 160, objectFit: 'cover' }}
-              onError={e => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/400x250?text=Recipe'; }}
-            />
-            <div style={{ padding: 12 }}>
-              <h4 style={{ margin: '8px 0' }}>{item.title}</h4>
-              <p style={{ margin: 0, color: 'var(--muted)', fontSize: 14 }}>
-                Used: {item.usedIngredients ?? item.usedIngredientCount ?? 0} • Missed: {item.missedIngredients ?? item.missedIngredientCount ?? 0}
-              </p>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-                <Link to={`/recipe/${item.id || item._id}`} style={{ textDecoration: 'none', color: 'var(--accent)' }}>View</Link>
-                <FavButtonLocal recipeId={item.id || item._id} />
+      {/* RESULTS */}
+      <div className={`results-grid ${animateResults ? "fade-in" : ""}`}>
+        {results.map((item) => {
+          console.log("ITEM:", item);
+          console.log("ITEM.URI:", item.uri);
+          return (
+            <div key={item.id} className="recipe-card">
+              <div className="recipe-image-wrapper">
+              <img src={item.image} alt={item.title} />
+              {/*❤️ Favorite Button*/}
+              <div className="recipe-fav-btn">
+                <FavButtonAuth recipe={item} />
+              </div>
+              </div>
+              <div className="recipe-card-body">
+                <div className="recipe-title">{item.title}</div>
+                <div className="recipe-meta">
+                  <span>🔥{item.calories}kcal</span>
+                  <span>
+                    Used: {item.usedIngredients} | Missed:{" "}
+                    {item.missedIngredients}
+                  </span>
+                </div>
+                <Link to={`/recipe/${encodeURIComponent(item.id)}`}>
+                  <button className="recipe-btn">View Recipe</button>
+                </Link>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

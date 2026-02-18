@@ -1,27 +1,166 @@
-/* src/components/IngredientSearch.css */
-.is-wrapper { position: relative; display:flex; align-items:center; gap:8px; width: 100%; }
-.is-form { display:flex; align-items:center; gap:8px; width:100%; }
-.chips {
-  display:flex; align-items:center; flex:1 1 0; gap:8px;
-  padding:6px 8px; border-radius:999px; background:var(--card); border:1px solid rgba(0,0,0,0.06);
-  flex-wrap:wrap;
-  min-height:40px; min-width: 0;
-}
-.is-input { flex:1 1 auto; border:0; outline:none; padding:6px; min-width:80px; background:transparent; color:var(--text); }
-.chip { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,0.06); padding:6px 8px; border-radius:999px; font-weight:600; white-space: nowrap;}
-.chip-x { border:0;background:transparent; cursor:pointer; font-size:12px; color:var(--muted); }
+/* frontend/src/components/IngredientSearch.css
+   Finalized styles for group-wise categories + chips + suggestions
+*/
 
-.is-find-btn { flex: 0 0 auto; background:var(--accent); color:#fff; border:0; padding:8px 14px; border-radius:999px; cursor:pointer; white-space: nowrap;}
-
-.is-list {
-  position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:90;
-  background:var(--card); border-radius:8px; box-shadow:0 10px 26px rgba(0,0,0,0.2); list-style:none; margin:0; padding:8px 0;
-  max-height:260px; overflow:auto;
+.ingredient-search-root {
+  margin: 10px 0 18px;
+  font-family: inherit;
+  width: 100%;
+  max-width: 920px;
 }
-.is-list li { padding:8px 12px; cursor:pointer; color:var(--text); }
-.is-list li.active, .is-list li:hover { background:rgba(0,0,0,0.06); }
-@media (max-width: 420px) {
-  .is-form { flex-direction: column; align-items: stretch; gap: 8px; }
-  .is-find-btn { width: 100%; margin-left: 0; }
-  .chips { order: 0; }
+
+/* SELECTED TAGS ROW */
+.selected-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 8px;
+  min-height: 36px;
+}
+.selected-placeholder {
+  color: #888;
+  padding: 6px 8px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+.selected-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f1f1;
+  padding: 6px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+.selected-chip .x-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 6px;
+}
+
+/* INPUT ROW */
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.ingredient-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: #fff;
+}
+.add-btn {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* SUGGESTIONS */
+.suggestions-box {
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 8px;
+  margin-bottom: 10px;
+  max-width: 920px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+}
+.suggest-item {
+  background: #f4f4f4;
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.suggest-loading { color: #666; padding: 6px 10px; }
+
+/* CATEGORIES (accordion) */
+.categories-root {
+  margin-top: 8px;
+  max-width: 920px;
+}
+
+/* single category card */
+.category {
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding: 8px 0;
+}
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 6px 0;
+}
+.category-header strong { font-size: 16px; }
+.small-muted {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.category-body {
+  padding: 10px 0 14px;
+}
+.category-items {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* CHIPS */
+.chip {
+  display: inline-block;
+  background: #f1f1f1;
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 0;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;
+}
+.chip-active {
+  background: #34c759;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* minimal chips row (for topbar compact view) */
+.ingredient-chips-minimal {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 6px 0;
+  align-items: center;
+}
+.ingredient-chips-minimal .chip { white-space: nowrap; }
+
+/* footer help */
+.ingredient-help {
+  margin-top: 12px;
+  color: #666;
+  font-size: 13px;
+}
+
+/* SAFEGUARDS: override accidental decorations/pseudo elements */
+.ingredient-search-root::before,
+.ingredient-search-root::after,
+.categories-root::before,
+.categories-root::after {
+  display: none !important;
+  content: none !important;
 }

@@ -1,0 +1,19 @@
+/* frontend/src/components/TopSearchBar.css */
+.top-searchbar { max-width: 1000px; margin: 0 auto; }
+.top-search-form { display:flex; gap:10px; align-items:center; }
+.top-search-input {
+  flex:1;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+.top-search-btn {
+  padding:11px 16px;
+  border-radius:8px;
+  border:0;
+  background: var(--accent, #ff5a85);
+  color:#fff;
+  cursor:pointer;
+  font-weight:700;
+}
