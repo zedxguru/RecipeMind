@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RecipeDetail from "./pages/RecipeDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import { ToastProvider } from "./context/ToastContext";
 
 // temporary pages (blank avoid karne ke liye)
 function Explore() {
@@ -20,6 +21,7 @@ export default function App() {
     initTheme();
   },[]);
   return (
+    <ToastProvider>
     <Router>
       <Navbar />
       {/* IMPORTANT: main-content wrapper */}
@@ -34,5 +36,6 @@ export default function App() {
         </Routes>
       </div>
     </Router>
+    </ToastProvider>
   );
 }

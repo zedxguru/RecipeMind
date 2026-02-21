@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { saveAuth } from "../utils/auth";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 🔹 form states
   const [email, setEmail] = useState("");
@@ -43,7 +44,8 @@ export default function Login() {
       window.dispatchEvent(new Event("storage"));
 
       // ✅ redirect to home
-      navigate("/");
+      const redirectTo = location.state?.from?.pathname || "/";
+      navigate(redirectTo, {replace: true});
     } catch (err) {
       console.error(err);
       setError(

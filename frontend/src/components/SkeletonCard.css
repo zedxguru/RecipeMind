@@ -1,0 +1,49 @@
+.skeleton-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.skeleton-img {
+  height: 180px;
+  width: 100%;
+  background: var(--card-bg);
+}
+
+.skeleton-text {
+  height: 14px;
+  margin: 14px;
+  border-radius: 6px;
+  background: var(--card-bg);
+}
+
+.skeleton-text.short {
+  width: 60%;
+}
+
+/* Shimmer animation */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  height: 100%;
+  width: 150%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.3),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 150%;
+  }
+}

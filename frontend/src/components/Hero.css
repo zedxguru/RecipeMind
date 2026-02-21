@@ -2,7 +2,7 @@
   animation:heroFade 0.8s ease forwards;
   opacity: 0;
   transform: translateY(20px);
-  padding: 120px 20px 80px;
+  padding: 80px 20px 80px;
   text-align: center;
   background: var(--bg-primary);
   color: var(--text-primary);

@@ -5,6 +5,9 @@ import { Link, useSearchParams } from "react-router-dom";
 import FavButtonAuth from "../components/FavButtonAuth";
 import "../components/RecipeCard.css";
 import Hero from "../components/Hero";
+import SkeletonCard from "../components/SkeletonCard";
+import EmptyState from "../components/EmptyState";
+
 const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 export default function Home() {
@@ -29,12 +32,15 @@ export default function Home() {
 
     setLoading(true);
     setError("");
+    setAnimateResults(false);
 
     try {
       const res = await axios.post(`${API}/api/search-by-ingredients`, {
         ingredients: list,
       });
       setResults(res.data || []);
+      setTimeout(()=>
+        setAnimateResults(true),100);
     } catch (e) {
       setError("Search failed. Check backend.");
     } finally {
@@ -55,7 +61,7 @@ export default function Home() {
     }
   }, [navQuery]);
 
-  // 🔹 Normal search (chips + input)
+  // 🔹 Normal search (Manual)
   const handleSearch = async () => {
     const list = ingredients
       .split(",")
@@ -69,21 +75,20 @@ export default function Home() {
 
     setLoading(true);
     setError("");
+    setAnimateResults(false);
 
     try {
       const res = await axios.post(`${API}/api/search-by-ingredients`, {
         ingredients: list,
       });
       setResults(res.data || []);
+      setTimeout(() =>
+      setAnimateResults(true),100);
     } catch (e) {
       setError("Search failed. Check backend.");
     } finally {
       setLoading(false);
     }
-    setAnimateResults(false);
-    setTimeout(()=>{
-      setAnimateResults(true);
-    },100);
   };
 
   return (
@@ -122,19 +127,31 @@ export default function Home() {
         />
         <button
           onClick={handleSearch}
-          className="home-search-btn"
-        >
+          className={`home-search-btn ripple-btn ${
+            !loading && results.length === 0 ? "pulse-btn" : ""
+          }`}>
           Search
         </button>
       </div>
 
-      {/* STATUS */}
-      {loading && <p style={{ textAlign: "center" }}>Loading…</p>}
+      {/* ERROR STATUS */}
       {error && (
         <p style={{ color: "crimson", textAlign: "center" }}>{error}</p>
       )}
 
-      {/* RESULTS */}
+      {/* SKELETON LOADING RESULTS */}
+      {loading &&(
+        <div className="results-grid">
+          {[...Array(6)].map((_, i)=>(
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      )}
+      {/* REAL RESULTS */}
+      {!loading && results.length === 0 && ingredients &&
+      (
+        <EmptyState message="We couldn't find recipe for thos ingredients. Try something else!" />
+      )}
       <div className={`results-grid ${animateResults ? "fade-in" : ""}`}>
         {results.map((item) => {
           console.log("ITEM:", item);
@@ -158,7 +175,7 @@ export default function Home() {
                   </span>
                 </div>
                 <Link to={`/recipe/${encodeURIComponent(item.id)}`}>
-                  <button className="recipe-btn">View Recipe</button>
+                  <button className="recipe-btn ripple-btn">View Recipe</button>
                 </Link>
               </div>
             </div>

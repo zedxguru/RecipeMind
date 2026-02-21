@@ -78,7 +78,7 @@ export default function Favorites() {
               />
               <div style={{ padding: 12 }}>
                 <h4 style={{ marginBottom: 8 }}>{r.title}</h4>
-                <Link to={`/recipe/${encodeURIComponent(r.uri)}`}>View recipe</Link>
+                <Link to={`/recipe/${encodeURIComponent(r.id)}`}>View recipe</Link>
               </div>
             </div>
           ))}
