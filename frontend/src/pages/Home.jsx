@@ -16,7 +16,7 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [animateResults,setAnimateResults] = useState(false);
+  const [animateResults, setAnimateResults] = useState(false);
 
   const [searchParams] = useSearchParams();
   const navQuery = searchParams.get("q");
@@ -39,8 +39,7 @@ export default function Home() {
         ingredients: list,
       });
       setResults(res.data || []);
-      setTimeout(()=>
-        setAnimateResults(true),100);
+      setTimeout(() => setAnimateResults(true), 100);
     } catch (e) {
       setError("Search failed. Check backend.");
     } finally {
@@ -82,8 +81,7 @@ export default function Home() {
         ingredients: list,
       });
       setResults(res.data || []);
-      setTimeout(() =>
-      setAnimateResults(true),100);
+      setTimeout(() => setAnimateResults(true), 100);
     } catch (e) {
       setError("Search failed. Check backend.");
     } finally {
@@ -93,7 +91,85 @@ export default function Home() {
 
   return (
     <div className="main-content" style={{ paddingTop: 20 }}>
-     <Hero />
+      <Hero />
+      {/* FEATURED RECIPES */}
+      <section className="home-featured">
+        <h2>🔥 Popular Recipes</h2>
+
+        <div className="featured-grid">
+          <div
+            className="featured-card"
+            onClick={() => handleSearchFromNav("pasta")}
+          >
+            <img src="/images/pasta.jpg" alt="Pasta" />
+            <span>Italian Pasta</span>
+          </div>
+
+          <div
+            className="featured-card"
+            onClick={() => handleSearchFromNav("paneer")}
+          >
+            <img src="/images/paneer.jpg" alt="Paneer" />
+            <span>Paneer Butter Masala</span>
+          </div>
+
+          <div
+            className="featured-card"
+            onClick={() => handleSearchFromNav("salad")}
+          >
+            <img src="/images/salad.jpg" alt="Salad" />
+            <span>Healthy Salad</span>
+          </div>
+
+          <div
+            className="featured-card"
+            onClick={() => handleSearchFromNav("burger")}
+          >
+            <img src="/images/burger.jpg" alt="Burger" />
+            <span>Homemade Burger</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 🍳 BROWSE BY CATEGORY */}
+      <section className="home-categories">
+        <h2>🍳 Browse by Category</h2>
+
+        <div className="category-grid">
+          <div
+            className="category-card"
+            onClick={() => handleSearchFromNav("chicken")}
+          >
+            <img src="/images/chicken.jpg" alt="Chicken" />
+            <span>Chicken</span>
+          </div>
+
+          <div
+            className="category-card"
+            onClick={() => handleSearchFromNav("vegetarian")}
+          >
+            <img src="/images/veg.jpg" alt="Vegetarian" />
+            <span>Vegetarian</span>
+          </div>
+
+          <div
+            className="category-card"
+            onClick={() => handleSearchFromNav("pasta")}
+          >
+            <img src="/images/pasta.jpg" alt="Pasta" />
+            <span>Pasta</span>
+          </div>
+
+          <div
+            className="category-card"
+            onClick={() => handleSearchFromNav("dessert")}
+          >
+            <img src="/images/dessert.jpg" alt="Dessert" />
+            <span>Dessert</span>
+          </div>
+        </div>
+      </section>
+
       {/* TITLE 
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <h1>RecipeMind — Find recipes from ingredients</h1>
@@ -129,7 +205,8 @@ export default function Home() {
           onClick={handleSearch}
           className={`home-search-btn ripple-btn ${
             !loading && results.length === 0 ? "pulse-btn" : ""
-          }`}>
+          }`}
+        >
           Search
         </button>
       </div>
@@ -140,16 +217,15 @@ export default function Home() {
       )}
 
       {/* SKELETON LOADING RESULTS */}
-      {loading &&(
+      {loading && (
         <div className="results-grid">
-          {[...Array(6)].map((_, i)=>(
+          {[...Array(6)].map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       )}
       {/* REAL RESULTS */}
-      {!loading && results.length === 0 && ingredients &&
-      (
+      {!loading && results.length === 0 && ingredients && (
         <EmptyState message="We couldn't find recipe for thos ingredients. Try something else!" />
       )}
       <div className={`results-grid ${animateResults ? "fade-in" : ""}`}>
@@ -159,11 +235,11 @@ export default function Home() {
           return (
             <div key={item.id} className="recipe-card">
               <div className="recipe-image-wrapper">
-              <img src={item.image} alt={item.title} />
-              {/*❤️ Favorite Button*/}
-              <div className="recipe-fav-btn">
-                <FavButtonAuth recipe={item} />
-              </div>
+                <img src={item.image} alt={item.title} />
+                {/*❤️ Favorite Button*/}
+                <div className="recipe-fav-btn">
+                  <FavButtonAuth recipe={item} />
+                </div>
               </div>
               <div className="recipe-card-body">
                 <div className="recipe-title">{item.title}</div>
@@ -182,6 +258,47 @@ export default function Home() {
           );
         })}
       </div>
+      {/* ⭐ WHY RECIPEMIND */}
+      <section className="why-section">
+        <h2>Why RecipeMind?</h2>
+
+        <div className="why-grid">
+          <div className="why-card">
+            <h3>⚡ Fast Search</h3>
+            <p>Find recipes instantly from ingredients you already have.</p>
+          </div>
+
+          <div className="why-card">
+            <h3>❤️ Save Favorites</h3>
+            <p>Bookmark your favorite recipes for quick access later.</p>
+          </div>
+
+          <div className="why-card">
+            <h3>🍳 Smart Cooking</h3>
+            <p>
+              Reduce food waste and cook smarter with available ingredients.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 📊 STATS */}
+      <section className="stats-section">
+        <div>
+          <h3>1000+</h3>
+          <span>Recipes Indexed</span>
+        </div>
+
+        <div>
+          <h3>Fast</h3>
+          <span>Search Engine</span>
+        </div>
+
+        <div>
+          <h3>Modern</h3>
+          <span>UI Experience</span>
+        </div>
+      </section>
     </div>
   );
 }
