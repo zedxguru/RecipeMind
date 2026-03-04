@@ -10,6 +10,8 @@ import RecipeDetail from "./pages/RecipeDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ToastProvider } from "./context/ToastContext";
+import About from "./pages/About";
+import Footer from "./components/Footer";
 
 // temporary pages (blank avoid karne ke liye)
 function Explore() {
@@ -33,8 +35,10 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </div>
+      <Footer />
     </Router>
     </ToastProvider>
   );
