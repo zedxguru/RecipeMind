@@ -17,9 +17,30 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [animateResults, setAnimateResults] = useState(false);
+  const [imageUrl, setImageUrl] = useState("")
+  const [imageFile, setImageFile]= useState(null);
 
   const [searchParams] = useSearchParams();
   const navQuery = searchParams.get("q");
+
+  // 🔹 AI Ingredient Detection
+  const detectIngredients = async () => {
+    if (!imageUrl) return;
+
+    try {
+      const res = await axios.post(`${API}/api/image/detect`, {
+        imageUrl,
+      });
+
+      const detected = res.data.ingredients.join(", ");
+
+      setIngredients(detected);
+      handleSearchFromNav(detected);
+
+    } catch (err) {
+      setError("AI detection failed");
+    }
+  };
 
   // 🔹 Navbar search handler
   const handleSearchFromNav = async (queryString) => {
@@ -60,6 +81,42 @@ export default function Home() {
     }
   }, [navQuery]);
 
+  const detectFromImage = async () => {
+
+if(!imageFile){
+setError("Please upload an image");
+return;
+}
+
+const formData = new FormData();
+
+formData.append("image",imageFile);
+
+try{
+
+const res = await axios.post(
+`${API}/api/image/detect`,
+formData,
+{
+headers:{
+"Content-Type":"multipart/form-data"
+}
+}
+);
+
+const detected = res.data.ingredients.join(", ");
+
+setIngredients(detected);
+
+handleSearchFromNav(detected);
+
+}catch(err){
+
+setError("AI detection failed");
+
+}
+
+};
   // 🔹 Normal search (Manual)
   const handleSearch = async () => {
     const list = ingredients
@@ -177,7 +234,39 @@ export default function Home() {
           Use ingredient chips or type ingredients, then press Search
         </p>
       </div> */}
+      {/* ⭐ AI IMAGE DETECTION */}
+      <div style={{ textAlign: "center", margin: "20px 0" }}>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
+          style={{
+            padding: 10,
+            width: 300,
+            marginRight: 10,
+            borderRadius: 8,
+            border: "1px solid #ccc"
+          }}
+        />
+
+        <button
+          onClick={detectFromImage}
+          style={{
+            marginLeft:10,
+            padding: "8px 16px",
+            background: "#ff5c8a",
+            border: "none",
+            color: "white",
+            borderRadius: 6,
+            cursor: "pointer"
+          }}
+        >
+          Detect Ingredients
+        </button>
+      </div>
+      
       <div className="container-home-body"></div>
+
       {/* INGREDIENT CATEGORIES */}
       <IngredientCategories
         selected={selectedIngredients}

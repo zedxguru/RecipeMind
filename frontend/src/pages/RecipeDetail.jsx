@@ -85,6 +85,26 @@ export default function RecipeDetail() {
           )}
         </section>
 
+        {recipe.substitutions && recipe.substitutions.length > 0 && (
+  <section style={{ marginTop: 30 }}>
+    <h3>Ingredient Substitutions</h3>
+
+    <div className="substitution-list">
+      {recipe.substitutions.map((s, i) => (
+        <div key={i} className="substitution-card">
+          <strong>{s.ingredient}</strong>
+          <p>Try instead:</p>
+          <ul>
+            {s.alternatives.map((alt, j) => (
+              <li key={j}>{alt}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
         {/* Instructions */}
         <section>
           <h3>Instructions</h3>

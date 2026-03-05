@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 
 const router = express.Router();
+const substitutions = require("../data/substitutions");
 
 // 🍲 Recipe Detail Route
 router.get("/:uri", async (req, res) => {
@@ -25,10 +26,11 @@ router.get("/:uri", async (req, res) => {
           app_key: APP_KEY,
           type: "public",
         },
-       headers: {
-        "Edamam-Account-User":
-          process.env.EDAMAM_ACCOUNT_USER || "sameervarma",
-        Accept: "application/json",}
+        headers: {
+          "Edamam-Account-User":
+            process.env.EDAMAM_ACCOUNT_USER || "sameervarma",
+          Accept: "application/json",
+        },
       }
     );
 
@@ -38,6 +40,22 @@ router.get("/:uri", async (req, res) => {
       return res.status(404).json({ message: "Recipe not found" });
     }
 
+    // 🧠 Smart Ingredient Substitution Logic
+    const ingredientSubstitutions = recipe.ingredientLines
+      .map((ing) => {
+        const lower = ing.toLowerCase();
+
+        const match = Object.keys(substitutions).find((key) =>
+          lower.includes(key)
+        );
+
+        return match
+          ? { ingredient: ing, alternatives: substitutions[match] }
+          : null;
+      })
+      .filter(Boolean);
+
+    // 📦 Final Response
     res.json({
       id: recipe.uri,
       title: recipe.label,
@@ -48,9 +66,13 @@ router.get("/:uri", async (req, res) => {
         "Instructions available on source website",
       calories: Math.round(recipe.calories),
       sourceUrl: recipe.url,
+      substitutions: ingredientSubstitutions,
     });
   } catch (err) {
-    console.error("❌ Recipe detail error:", err.response?.data || err.message);
+    console.error(
+      "❌ Recipe detail error:",
+      err.response?.data || err.message
+    );
     res.status(500).json({ message: "Failed to load recipe detail" });
   }
 });

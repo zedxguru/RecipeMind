@@ -8,7 +8,7 @@ const recipeRoutes = require("./routes/recipe.routes");
 const authRoutes = require("./routes/auth.routes");
 const authMiddleware = require("./middleware/auth.middleware");
 const favoriteRoutes = require("./routes/favorites.routes");
-
+const imageRoutes = require("./routes/image.routes")
 const app = express();
 
 // ===Middleware=== /
@@ -19,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/favorites",authMiddleware, favoriteRoutes);
 app.use("/api/recipe",recipeRoutes);
+app.use("/api/image",imageRoutes);
 
 // MongoDB connect
 if (!process.env.MONGO_URI) {

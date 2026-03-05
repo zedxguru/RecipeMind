@@ -89,3 +89,21 @@
     top: 0;
   }
 }
+
+.substitution-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:16px;
+  margin-top:10px;
+}
+
+.substitution-card{
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+}
+
+.substitution-card ul{
+  margin:6px 0 0 18px;
+}
